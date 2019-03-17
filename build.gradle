@@ -1,0 +1,27 @@
+buildscript {
+
+    repositories {
+        google()
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.3.2'
+    }
+}
+
+ext {
+    // Compilation (defined here to ensure consistency between the library and sample app)
+    compileSdkVersion = 28
+    buildToolsVersion = '28.0.3'
+    minSdkVersion = 14
+    targetSdkVersion = 28
+    javaVersion = JavaVersion.VERSION_1_7
+}
+
+subprojects {
+    repositories {
+        jcenter()
+        google()
+    }
+}

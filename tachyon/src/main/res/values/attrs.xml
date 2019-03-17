@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2019 LinkedIn Corporation -->
+<!-- All Rights Reserved. -->
+<!-- -->
+<!-- Licensed under the BSD 2-Clause License (the "License").  See License in the project root -->
+<!-- for license information. -->
+<resources>
+    <declare-styleable name="DayView">
+        <attr name="dividerHeight" format="dimension"/>
+        <attr name="hourDividerColor" format="color"/>
+        <attr name="halfHourDividerColor" format="color"/>
+        <attr name="halfHourHeight" format="dimension"/>
+        <attr name="hourLabelWidth" format="dimension"/>
+        <attr name="hourLabelMarginEnd" format="dimension"/>
+        <attr name="eventMargin" format="dimension"/>
+    </declare-styleable>
+</resources>

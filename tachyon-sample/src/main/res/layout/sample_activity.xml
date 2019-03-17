@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?><!-- Copyright 2019 LinkedIn Corporation --><!-- All Rights Reserved. --><!-- --><!-- Licensed under the BSD 2-Clause License (the "License").  See License in the project root --><!-- for license information. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/sample_content"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/sample_date"
+        style="@style/Base.TextAppearance.AppCompat.Medium"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:ellipsize="end"
+        android:gravity="center"
+        android:paddingLeft="@dimen/small_padding"
+        android:paddingTop="@dimen/large_padding"
+        android:paddingRight="@dimen/small_padding"
+        android:textAlignment="center"
+        tools:text="Jan 16, 2019" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingLeft="@dimen/medium_padding"
+        android:paddingTop="@dimen/large_padding"
+        android:paddingRight="@dimen/medium_padding"
+        android:paddingBottom="@dimen/large_padding">
+
+        <Button
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:onClick="onPreviousClick"
+            android:text="@string/previous_day"
+            tools:ignore="SpUsage" />
+
+        <Button
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:onClick="onAddEventClick"
+            android:text="@string/add_event"
+            tools:ignore="SpUsage" />
+
+        <Button
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:onClick="onNextClick"
+            android:text="@string/next_day"
+            tools:ignore="SpUsage" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/divider_height"
+        android:background="@color/hour_divider" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        tools:context=".SampleActivity">
+
+        <com.linkedin.android.tachyon.DayView
+            android:id="@+id/sample_day"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/large_padding"
+            app:dividerHeight="@dimen/divider_height"
+            app:eventMargin="@dimen/small_padding"
+            app:halfHourDividerColor="@color/half_hour_divider"
+            app:halfHourHeight="@dimen/half_hour_height"
+            app:hourDividerColor="@color/hour_divider"
+            app:hourLabelMarginEnd="@dimen/large_padding"
+            app:hourLabelWidth="@dimen/hour_label_width" />
+    </ScrollView>
+</LinearLayout>

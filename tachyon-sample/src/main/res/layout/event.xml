@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2019 LinkedIn Corporation -->
+<!-- All Rights Reserved. -->
+<!-- -->
+<!-- Licensed under the BSD 2-Clause License (the "License").  See License in the project root -->
+<!-- for license information. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="@dimen/medium_padding"
+    tools:background="@android:color/holo_blue_dark">
+
+    <TextView
+        android:id="@+id/event_title"
+        style="@style/Base.TextAppearance.AppCompat.Small"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start"
+        android:ellipsize="end"
+        android:maxLines="2"
+        android:textAlignment="viewStart"
+        android:textColor="@android:color/primary_text_dark"
+        android:textStyle="bold"
+        tools:text="Title" />
+
+    <TextView
+        android:id="@+id/event_location"
+        style="@style/Base.TextAppearance.AppCompat.Small"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start"
+        android:ellipsize="end"
+        android:maxLines="2"
+        android:textAlignment="viewStart"
+        android:textColor="@android:color/primary_text_dark"
+        android:textStyle="italic"
+        tools:text="Location" />
+
+</LinearLayout>

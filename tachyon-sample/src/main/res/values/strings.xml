@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2019 LinkedIn Corporation -->
+<!-- All Rights Reserved. -->
+<!-- -->
+<!-- Licensed under the BSD 2-Clause License (the "License").  See License in the project root -->
+<!-- for license information. -->
+<resources>
+    <string name="app_name">Tachyon Sample</string>
+    <string name="previous_day">Previous Day</string>
+    <string name="next_day">Next Day</string>
+    <string name="add_event">Add Event</string>
+    <string name="edit_event">Edit Event</string>
+    <string name="edit_event_title">Title</string>
+    <string name="edit_event_location">Location</string>
+    <string name="edit_event_date">Date</string>
+    <string name="edit_event_start_time">Start Time</string>
+    <string name="edit_event_end_time">End Time</string>
+    <string name="edit_event_color">Color</string>
+    <string name="edit_event_delete">Delete</string>
+</resources>
