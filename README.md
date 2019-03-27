@@ -1,4 +1,4 @@
-Tachyon
+Tachyon [![Build Status](https://travis-ci.com/linkedin/Tachyon.svg?branch=master)](https://travis-ci.com/linkedin/Tachyon)
 ========
 
 An Android library that provides a customizable calendar day view.
