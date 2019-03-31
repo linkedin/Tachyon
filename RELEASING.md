@@ -15,7 +15,9 @@ Releasing
 Prerequisites
 -------------
 
-Set the following environment variables:
+First, you will need a Bintray account with access to the [linkedin-tachyon](https://bintray.com/linkedin-tachyon) organization.
 
- * `ARTIFACTORY_USER` - LinkedIn artifactory username for releasing to `com.linkedin.android.tachyon`.
- * `ARTIFACTORY_KEY` - LinkedIn artifactory API key for releasing to `com.linkedin.android.tachyon`.
+Then, set the following environment variables:
+
+ * `BINTRAY_USER` - Bintray username
+ * `BINTRAY_KEY`  - Bintray API key for the given user account

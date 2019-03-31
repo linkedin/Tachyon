@@ -1,8 +1,8 @@
-import com.linkedin.gradle.DistributeTask
-
-apply plugin: 'com.jfrog.artifactory'
-apply plugin: 'com.android.library'
-apply plugin: 'maven-publish'
+plugins {
+    id 'com.android.library'
+    id 'maven-publish'
+    id 'com.jfrog.bintray' version '1.8.4'
+}
 
 group = GROUP_ID
 
@@ -69,11 +69,11 @@ publishing {
                     resolveStrategy = Closure.DELEGATE_FIRST
 
                     description = LIBRARY_DESCRIPTION
-                    url 'https://github.com/linkedin/Tachyon'
+                    url LIBRARY_GIT_URL
                     scm {
-                        url 'https://github.com/linkedin/Tachyon'
-                        connection 'scm:git:git://github.com/linkedin/Tachyon.git'
-                        developerConnection 'https://github.com/linkedin/Tachyon.git'
+                        url LIBRARY_GIT_URL
+                        connection LIBRARY_GIT_CONNECTION
+                        developerConnection LIBRARY_GIT_CONNECTION
                     }
                     licenses {
                         license {
@@ -107,21 +107,31 @@ publishing {
     }
 }
 
-artifactory {
-    contextUrl = 'https://linkedin.jfrog.io/linkedin'
-    publish {
-        repoKey = 'Tachyon'
-        username = System.getenv('ARTIFACTORY_USER') ?: ''
-        password = System.getenv('ARTIFACTORY_KEY') ?: ''
+bintray {
 
-        defaults {
-            publications ('aar')
-            publishArtifacts = true
+    user = System.getenv('BINTRAY_USER') ?: ""
+    key = System.getenv('BINTRAY_KEY') ?: ""
+
+    pkg {
+        userOrg = 'linkedin-tachyon'
+        repo = 'maven'
+        name = 'tachyon'
+        desc = LIBRARY_DESCRIPTION
+        labels = ['android']
+        licenses = ['2-Clause BSD License']
+
+        websiteUrl = LIBRARY_GIT_URL
+        vcsUrl = LIBRARY_GIT_URL
+        issueTrackerUrl = 'https://github.com/linkedin/Tachyon/issues'
+        githubRepo = 'linkedin/tachyon'
+
+        version {
+            name = VERSION_NAME
+            released = new Date()
         }
-    }
-    clientConfig.setIncludeEnvVars(false)
-}
 
-task distributeBuild(type: DistributeTask) {
-    dependsOn 'artifactoryPublish'
+        publish = true
+    }
+
+    publications = ['aar']
 }
