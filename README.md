@@ -8,18 +8,18 @@ An Android library that provides a customizable calendar day view.
 Getting Started
 ---------------
 
-Clone or download this repo, then build the library project from the root directory:
-```bash
-./gradlew :tachyon:assemble
+Grab via Maven:
+```xml
+<dependency>
+  <groupId>com.linkedin.android.tachyon</groupId>
+  <artifactId>tachyon</artifactId>
+  <version>1.0.0</version>
+</dependency>
 ```
-
-The compiled aar file should be in:
-```bash
-tachyon/build/outputs/aar/
+or Gradle:
+```groovy
+implementation 'com.linkedin.android.tachyon:tachyon:1.0.0'
 ```
-
-Add the compiled aar library as a dependency in your project:\
-https://developer.android.com/studio/projects/android-library#AddDependency
 
 Overview
 --------
