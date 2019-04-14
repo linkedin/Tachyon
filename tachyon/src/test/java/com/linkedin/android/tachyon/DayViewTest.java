@@ -85,11 +85,11 @@ public class DayViewTest {
         }
 
         dayView = new DayView(context, attrs, 0, false);
-        dayView.hourLabelViews = hourLabelViews;
-        dayView.eventViews = eventViews;
-        dayView.eventTimeRanges = eventTimeRanges;
+        dayView.hourLabelViews.addAll(hourLabelViews);
+        dayView.eventViews.addAll(eventViews);
+        dayView.eventTimeRanges.addAll(eventTimeRanges);
         dayView.eventColumnSpansHelper = new DayView.EventColumnSpansHelper(eventTimeRanges);
-        dayView.eventRects = eventRects;
+        dayView.eventRects.addAll(eventRects);
         dayView.setParentWidth(PARENT_WIDTH);
     }
 

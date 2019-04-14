@@ -59,12 +59,23 @@
             tools:ignore="SpUsage" />
     </LinearLayout>
 
+    <Button
+        style="?android:attr/buttonBarButtonStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/medium_padding"
+        android:layout_marginRight="@dimen/medium_padding"
+        android:onClick="onScrollClick"
+        android:text="@string/scroll_to"
+        tools:ignore="SpUsage" />
+
     <View
         android:layout_width="match_parent"
         android:layout_height="@dimen/divider_height"
         android:background="@color/hour_divider" />
 
     <ScrollView
+        android:id="@+id/sample_scroll"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"

@@ -16,7 +16,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import androidx.annotation.CallSuper;
@@ -61,24 +60,22 @@ public class DayView extends ViewGroup {
     @NonNull
     @VisibleForTesting
     final List<DirectionalRect> halfHourDividerRects;
-
-    // Any reason not to make all these final and just clear() + addAll() when the contents change?
-    // It would be nice to be safer against people passing in null lists
     @NonNull
     @VisibleForTesting
-    List<View> hourLabelViews;
-    @Nullable
+    final List<View> hourLabelViews;
+    @NonNull
     @VisibleForTesting
-    List<View> eventViews;
-    @Nullable
+    final List<View> eventViews;
+    @NonNull
     @VisibleForTesting
-    List<EventTimeRange> eventTimeRanges;
+    final List<EventTimeRange> eventTimeRanges;
+    @NonNull
+    @VisibleForTesting
+    final List<DirectionalRect> eventRects;
+
     @Nullable
     @VisibleForTesting
     EventColumnSpansHelper eventColumnSpansHelper;
-    @Nullable
-    @VisibleForTesting
-    List<DirectionalRect> eventRects;
 
     @NonNull
     private final Paint hourDividerPaint;
@@ -126,7 +123,10 @@ public class DayView extends ViewGroup {
             hourLabelRects.add(new DirectionalRect());
         }
 
-        hourLabelViews = Collections.emptyList();
+        hourLabelViews = new ArrayList<>();
+        eventViews = new ArrayList<>();
+        eventTimeRanges = new ArrayList<>();
+        eventRects = new ArrayList<>();
 
         TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.DayView);
         dividerHeight = array.getDimensionPixelSize(R.styleable.DayView_dividerHeight, 0);
@@ -158,7 +158,8 @@ public class DayView extends ViewGroup {
             removeView(view);
         }
 
-        this.hourLabelViews = hourLabelViews;
+        this.hourLabelViews.clear();
+        this.hourLabelViews.addAll(hourLabelViews);
 
         for (View view : this.hourLabelViews) {
             addView(view);
@@ -173,28 +174,32 @@ public class DayView extends ViewGroup {
      */
     public void setEventViews(@Nullable List<View> eventViews,
                               @Nullable List<EventTimeRange> eventTimeRanges) {
-        if (this.eventViews != null) {
-            for (View view : this.eventViews) {
-                removeView(view);
-            }
+        for (View view : this.eventViews) {
+            removeView(view);
         }
 
-        this.eventViews = eventViews;
-        this.eventTimeRanges = eventTimeRanges;
+        this.eventViews.clear();
+        this.eventTimeRanges.clear();
+        eventRects.clear();
+        eventColumnSpansHelper = null;
 
-        if (this.eventViews != null && this.eventTimeRanges != null) {
+        if (eventViews != null) {
+            this.eventViews.addAll(eventViews);
+        }
+
+        if (eventTimeRanges != null) {
+            this.eventTimeRanges.addAll(eventTimeRanges);
+        }
+
+        if (!this.eventViews.isEmpty() && !this.eventTimeRanges.isEmpty()) {
             eventColumnSpansHelper = new EventColumnSpansHelper(this.eventTimeRanges);
 
-            eventRects = new ArrayList<>(this.eventViews.size());
             for (int i = 0; i < this.eventViews.size(); i++) {
                 View view = this.eventViews.get(i);
                 addView(view);
 
                 eventRects.add(new DirectionalRect());
             }
-        } else {
-            eventColumnSpansHelper = null;
-            eventRects = null;
         }
     }
 
@@ -212,6 +217,86 @@ public class DayView extends ViewGroup {
         return eventViews;
     }
 
+    /**
+     * Useful if this view is hosted in a scroll view, the y coordinate returned can be used to
+     * scroll to the top of the given hour.
+     *
+     * @param hour the hour of the day, should be between 0 (12:00 AM of the current day) and 24
+     *             (12:00 AM of the next day)
+     * @return the vertical offset of the top of the given hour in pixels
+     */
+    public int getHourTop(int hour) {
+        if (hour < 0 || hour >= HOUR_LABELS_COUNT) {
+            throw new IllegalStateException("Hour must be between 0 and " + HOUR_LABELS_COUNT);
+        }
+
+        return hourDividerRects.get(hour).getBottom();
+    }
+
+    /**
+     * Useful if this view is hosted in a scroll view, the y coordinate returned can be used to
+     * scroll to the bottom of the given hour.
+     *
+     * @param hour the hour of the day, should be between 0 (12:00 AM of the current day) and 24
+     *             (12:00 AM of the next day)
+     * @return the vertical offset of the bottom of the given hour in pixels
+     */
+    public int getHourBottom(int hour) {
+        if (hour < 0 || hour >= HOUR_LABELS_COUNT) {
+            throw new IllegalStateException("Hour must be between 0 and " + HOUR_LABELS_COUNT);
+        }
+
+        if (hour == HOUR_LABELS_COUNT - 1) {
+            return hourDividerRects.get(hour).getBottom();
+        }
+
+        return hourDividerRects.get(hour + 1).getTop();
+    }
+
+    /**
+     * Useful if this view is hosted in a scroll view, the y coordinate returned can be used to
+     * scroll to the top of the first event.
+     *
+     * @return the vertical offset of the top of the first event in pixels, or zero if there are no
+     * events
+     */
+    public int getFirstEventTop() {
+        return !eventRects.isEmpty() ? eventRects.get(0).getTop() : 0;
+    }
+
+    /**
+     * Useful if this view is hosted in a scroll view, the y coordinate returned can be used to
+     * scroll to the bottom of the first event.
+     *
+     * @return the vertical offset of the bottom of the first event in pixels, or zero if there are
+     * no events
+     */
+    public int getFirstEventBottom() {
+        return !eventRects.isEmpty() ? eventRects.get(0).getBottom() : 0;
+    }
+
+    /**
+     * Useful if this view is hosted in a scroll view, the y coordinate returned can be used to
+     * scroll to the top of the last event.
+     *
+     * @return the vertical offset of the top of the last event in pixels, or zero if there are no
+     * events
+     */
+    public int getLastEventTop() {
+        return !eventRects.isEmpty() ? eventRects.get(eventRects.size() - 1).getTop() : 0;
+    }
+
+    /**
+     * Useful if this view is hosted in a scroll view, the y coordinate returned can be used to
+     * scroll to the bottom of the last event.
+     *
+     * @return the vertical offset of the bottom of the last event in pixels, or zero if there are
+     * no events
+     */
+    public int getLastEventBottom() {
+        return !eventRects.isEmpty() ? eventRects.get(eventRects.size() - 1).getBottom() : 0;
+    }
+
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         for (int i = 0; i < hourLabelViews.size(); i++) {
@@ -220,12 +305,10 @@ public class DayView extends ViewGroup {
             view.layout(rect.getLeft(), rect.getTop(), rect.getRight(), rect.getBottom());
         }
 
-        if (eventViews != null && eventRects != null) {
-            for (int i = 0; i < eventViews.size(); i++) {
-                View view = eventViews.get(i);
-                DirectionalRect rect = eventRects.get(i);
-                view.layout(rect.getLeft(), rect.getTop(), rect.getRight(), rect.getBottom());
-            }
+        for (int i = 0; i < eventViews.size(); i++) {
+            View view = eventViews.get(i);
+            DirectionalRect rect = eventRects.get(i);
+            view.layout(rect.getLeft(), rect.getTop(), rect.getRight(), rect.getBottom());
         }
     }
 
@@ -373,7 +456,7 @@ public class DayView extends ViewGroup {
 
     @VisibleForTesting
     void setEventRects(int firstDividerTop, float minuteHeight, int dividerStart, int dividerEnd) {
-        if (eventViews == null || eventTimeRanges == null || eventColumnSpansHelper == null || eventRects == null) {
+        if (eventColumnSpansHelper == null) {
             return;
         }
 
@@ -411,7 +494,7 @@ public class DayView extends ViewGroup {
             throw new IllegalStateException("No hour label views, setHourLabelViews() must be called before this view is rendered");
         } else if (hourLabelViews.size() != HOUR_LABELS_COUNT) {
             throw new IllegalStateException("Inconsistent number of hour label views, there should be " + HOUR_LABELS_COUNT + " but " + hourLabelViews.size() + " were found");
-        } else if (eventViews != null && (eventTimeRanges == null || eventViews.size() != eventTimeRanges.size())) {
+        } else if (eventViews.size() != eventTimeRanges.size()) {
             throw new IllegalStateException("Inconsistent number of event views or event time ranges, they should either be equal in length or both should be null");
         }
     }
@@ -448,10 +531,6 @@ public class DayView extends ViewGroup {
     }
 
     private void measureEvents() {
-        if (eventViews == null || eventRects == null) {
-            return;
-        }
-
         for (int i = 0; i < eventViews.size(); i++) {
             measureExactly(eventViews.get(i), eventRects.get(i));
         }

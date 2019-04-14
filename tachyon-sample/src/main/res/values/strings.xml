@@ -10,6 +10,7 @@
     <string name="next_day">Next Day</string>
     <string name="add_event">Add Event</string>
     <string name="edit_event">Edit Event</string>
+    <string name="scroll_to">Scroll To…</string>
     <string name="edit_event_title">Title</string>
     <string name="edit_event_location">Location</string>
     <string name="edit_event_date">Date</string>
@@ -17,4 +18,9 @@
     <string name="edit_event_end_time">End Time</string>
     <string name="edit_event_color">Color</string>
     <string name="edit_event_delete">Delete</string>
+    <string name="scroll_target_time">Time…</string>
+    <string name="scroll_target_first_event_top">First Event Top</string>
+    <string name="scroll_target_first_event_bottom">First Event Bottom</string>
+    <string name="scroll_target_last_event_top">Last Event Top</string>
+    <string name="scroll_target_last_event_bottom">Last Event Bottom</string>
 </resources>

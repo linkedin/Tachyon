@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.RadioButton;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
@@ -51,7 +52,8 @@ public class SampleActivity extends AppCompatActivity {
             new Event("Walk the dog", "Park", 0, 0, 30, android.R.color.holo_red_dark),
             new Event("Meeting", "Office", 1, 30, 90, android.R.color.holo_purple),
             new Event("Phone call", "555-5555", 2, 0, 45, android.R.color.holo_orange_dark),
-            new Event("Lunch", "Cafeteria", 2, 30, 30, android.R.color.holo_green_dark)};
+            new Event("Lunch", "Cafeteria", 2, 30, 30, android.R.color.holo_green_dark),
+            new Event("Dinner", "Home", 18, 0, 30, android.R.color.holo_green_dark)};
 
     private Calendar day;
     private LongSparseArray<List<Event>> allEvents;
@@ -64,6 +66,7 @@ public class SampleActivity extends AppCompatActivity {
 
     private ViewGroup content;
     private TextView dateTextView;
+    private ScrollView scrollView;
     private DayView dayView;
 
     @Override
@@ -88,6 +91,7 @@ public class SampleActivity extends AppCompatActivity {
 
         content = findViewById(R.id.sample_content);
         dateTextView = findViewById(R.id.sample_date);
+        scrollView = findViewById(R.id.sample_scroll);
         dayView = findViewById(R.id.sample_day);
 
         // Inflate a label view for each hour the day view will display
@@ -124,6 +128,10 @@ public class SampleActivity extends AppCompatActivity {
         editEventEndTime.add(Calendar.MINUTE, 30);
 
         showEditEventDialog(false, null, null, android.R.color.holo_red_dark);
+    }
+
+    public void onScrollClick(View v) {
+        showScrollTargetDialog();
     }
 
     private void onDayChange() {
@@ -296,14 +304,14 @@ public class SampleActivity extends AppCompatActivity {
             redRadioButton.setChecked(true);
         }
 
-        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         // If the event already exists, we are editing it, otherwise we are adding a new event
-        dialog.setTitle(eventExists ? R.string.edit_event : R.string.add_event);
+        builder.setTitle(eventExists ? R.string.edit_event : R.string.add_event);
 
         // When the event changes are confirmed, read the new values from the dialog and then add
         // this event to the list
-        dialog.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 List<Event> events = allEvents.get(editEventDate.getTimeInMillis());
@@ -337,7 +345,7 @@ public class SampleActivity extends AppCompatActivity {
             }
         });
 
-        dialog.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 onEditEventDismiss(false);
@@ -346,7 +354,7 @@ public class SampleActivity extends AppCompatActivity {
 
         // If the event already exists, provide a delete option
         if (eventExists) {
-            dialog.setNeutralButton(R.string.edit_event_delete, new DialogInterface.OnClickListener() {
+            builder.setNeutralButton(R.string.edit_event_delete, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     onEditEventDismiss(true);
@@ -354,14 +362,82 @@ public class SampleActivity extends AppCompatActivity {
             });
         }
 
-        dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+        builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
             public void onCancel(DialogInterface dialog) {
                 onEditEventDismiss(false);
             }
         });
-        dialog.setView(view);
-        dialog.show();
+        builder.setView(view);
+        builder.show();
+    }
+
+    private void showScrollTargetDialog() {
+        View view = getLayoutInflater().inflate(R.layout.scroll_target_dialog, content, false);
+        final Button timeButton = view.findViewById(R.id.scroll_target_time);
+        final Button firstEventTopButton = view.findViewById(R.id.scroll_target_first_event_top);
+        final Button firstEventBottomButton = view.findViewById(R.id.scroll_target_first_event_bottom);
+        final Button lastEventTopButton = view.findViewById(R.id.scroll_target_last_event_top);
+        final Button lastEventBottomButton = view.findViewById(R.id.scroll_target_last_event_bottom);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.scroll_to);
+        builder.setNegativeButton(android.R.string.cancel, null);
+        builder.setView(view);
+
+        final AlertDialog dialog = builder.show();
+
+        timeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TimePickerDialog.OnTimeSetListener listener = new TimePickerDialog.OnTimeSetListener() {
+                    @Override
+                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                        int top = dayView.getHourTop(hourOfDay);
+                        int bottom = dayView.getHourBottom(hourOfDay);
+                        int y = top + (bottom - top) * minute / 60;
+                        scrollView.smoothScrollTo(0, y);
+                        dialog.dismiss();
+                    }
+                };
+
+                new TimePickerDialog(SampleActivity.this, listener, 0, 0, android.text.format.DateFormat.is24HourFormat(SampleActivity.this)).show();
+
+            }
+        });
+
+        firstEventTopButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                scrollView.smoothScrollTo(0, dayView.getFirstEventTop());
+                dialog.dismiss();
+            }
+        });
+
+        firstEventBottomButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                scrollView.smoothScrollTo(0, dayView.getFirstEventBottom());
+                dialog.dismiss();
+            }
+        });
+
+        lastEventTopButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                scrollView.smoothScrollTo(0, dayView.getLastEventTop());
+                dialog.dismiss();
+            }
+        });
+
+        lastEventBottomButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                scrollView.smoothScrollTo(0, dayView.getLastEventBottom());
+                dialog.dismiss();
+
+            }
+        });
     }
 
     private void onEditEventDismiss(boolean modified) {

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?><!-- Copyright 2019 LinkedIn Corporation --><!-- All Rights Reserved. --><!-- --><!-- Licensed under the BSD 2-Clause License (the "License").  See License in the project root --><!-- for license information. -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="vertical"
+        android:padding="@dimen/large_padding">
+
+        <Button
+            android:id="@+id/scroll_target_time"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="start"
+            android:text="@string/scroll_target_time" />
+
+        <Button
+            android:id="@+id/scroll_target_first_event_top"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="start"
+            android:text="@string/scroll_target_first_event_top" />
+
+        <Button
+            android:id="@+id/scroll_target_first_event_bottom"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="start"
+            android:text="@string/scroll_target_first_event_bottom" />
+
+        <Button
+            android:id="@+id/scroll_target_last_event_top"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="start"
+            android:text="@string/scroll_target_last_event_top" />
+
+        <Button
+            android:id="@+id/scroll_target_last_event_bottom"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="start"
+            android:text="@string/scroll_target_last_event_bottom" />
+    </LinearLayout>
+</ScrollView>

@@ -39,4 +39,4 @@ The ''tachyon-sample'' app contains an example of using the library.
 Testing
 -------
 
-We use Mockito for our unit tests. You can run them via the `gradle clean test` command.
+We use Mockito for our unit tests. You can run them via the `clean test` Gradle tasks.
