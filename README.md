@@ -13,12 +13,12 @@ Grab via Maven:
 <dependency>
   <groupId>com.linkedin.android.tachyon</groupId>
   <artifactId>tachyon</artifactId>
-  <version>1.0.1</version>
+  <version>1.0.2</version>
 </dependency>
 ```
 or Gradle:
 ```groovy
-implementation 'com.linkedin.android.tachyon:tachyon:1.0.1'
+implementation 'com.linkedin.android.tachyon:tachyon:1.0.2'
 ```
 
 Overview
