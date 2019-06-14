@@ -97,7 +97,7 @@ public class SampleActivity extends AppCompatActivity {
         // Inflate a label view for each hour the day view will display
         Calendar hour = (Calendar) day.clone();
         List<View> hourLabelViews = new ArrayList<>();
-        for (int i = 0; i < DayView.HOUR_LABELS_COUNT; i++) {
+        for (int i = dayView.getStartHour(); i <= dayView.getEndHour(); i++) {
             hour.set(Calendar.HOUR_OF_DAY, i);
 
             TextView hourLabelView = (TextView) getLayoutInflater().inflate(R.layout.hour_label, dayView, false);

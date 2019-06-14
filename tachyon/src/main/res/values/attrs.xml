@@ -13,5 +13,7 @@
         <attr name="hourLabelWidth" format="dimension"/>
         <attr name="hourLabelMarginEnd" format="dimension"/>
         <attr name="eventMargin" format="dimension"/>
+        <attr name="startHour" format="integer"/>
+        <attr name="endHour" format="integer"/>
     </declare-styleable>
 </resources>

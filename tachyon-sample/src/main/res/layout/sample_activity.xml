@@ -87,11 +87,13 @@
             android:layout_height="wrap_content"
             android:padding="@dimen/large_padding"
             app:dividerHeight="@dimen/divider_height"
+            app:endHour="@integer/end_hour"
             app:eventMargin="@dimen/small_padding"
             app:halfHourDividerColor="@color/half_hour_divider"
             app:halfHourHeight="@dimen/half_hour_height"
             app:hourDividerColor="@color/hour_divider"
             app:hourLabelMarginEnd="@dimen/large_padding"
-            app:hourLabelWidth="@dimen/hour_label_width" />
+            app:hourLabelWidth="@dimen/hour_label_width"
+            app:startHour="@integer/start_hour" />
     </ScrollView>
 </LinearLayout>

@@ -59,12 +59,16 @@ public class DayViewTest {
         when(array.getDimensionPixelSize(R.styleable.DayView_hourLabelMarginEnd, 0)).thenReturn(
                 HOUR_LABEL_MARGIN_END);
         when(array.getDimensionPixelSize(R.styleable.DayView_eventMargin, 0)).thenReturn(EVENT_MARGIN);
+        when(array.getInt(R.styleable.DayView_startHour, DayView.MIN_START_HOUR)).thenReturn(DayView.MIN_START_HOUR);
+        when(array.getInt(R.styleable.DayView_endHour, DayView.MAX_END_HOUR)).thenReturn(DayView.MAX_END_HOUR);
 
         when(hourLabelView.getMeasuredWidth()).thenReturn(50);
         when(hourLabelView.getMeasuredHeight()).thenReturn(20);
 
+        dayView = new DayView(context, attrs, 0, false);
+
         List<View> hourLabelViews = new ArrayList<>();
-        for (int i = 0; i < DayView.HOUR_LABELS_COUNT; i++) {
+        for (int i = dayView.getStartHour(); i <= dayView.getEndHour(); i++) {
             hourLabelViews.add(hourLabelView);
         }
 
@@ -84,10 +88,9 @@ public class DayViewTest {
             eventRects.add(new DirectionalRect());
         }
 
-        dayView = new DayView(context, attrs, 0, false);
         dayView.hourLabelViews.addAll(hourLabelViews);
-        dayView.eventViews.addAll(eventViews);
-        dayView.eventTimeRanges.addAll(eventTimeRanges);
+        dayView.filteredEventViews.addAll(eventViews);
+        dayView.filteredEventTimeRanges.addAll(eventTimeRanges);
         dayView.eventColumnSpansHelper = new DayView.EventColumnSpansHelper(eventTimeRanges);
         dayView.eventRects.addAll(eventRects);
         dayView.setParentWidth(PARENT_WIDTH);

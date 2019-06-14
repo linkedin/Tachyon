@@ -35,21 +35,13 @@ public class DayView extends ViewGroup {
      * with an extra hour. For events that span the end of daylight saving time, they'll be drawn at
      * the minimum height for an event if the event's duration is roughly an hour or less.
      */
-    public static final int HOUR_COUNT = 24;
+    @VisibleForTesting
+    static final int MIN_START_HOUR = 0;
+    @VisibleForTesting
+    static final int MAX_END_HOUR = 24;
 
-    /**
-     * The total number of usable minutes in this day.
-     */
-    public static final int MINUTE_COUNT = 1440;
-
-    /**
-     * The hour labels count here is 25 so we can include the start of the midnight hour of the next
-     * day. {@link #setHourLabelViews(List)} expects exactly this many labels.
-     */
-    public static final int HOUR_LABELS_COUNT = HOUR_COUNT + 1;
-
-    private static final int HOUR_DIVIDERS_COUNT = HOUR_COUNT + 1;
-    private static final int HALF_HOUR_DIVIDERS_COUNT = HOUR_COUNT;
+    private static final int MINUTES_PER_HOUR = 60;
+    private static final int MIN_DURATION_MINUTES = 15;
 
     @NonNull
     @VisibleForTesting
@@ -68,7 +60,10 @@ public class DayView extends ViewGroup {
     final List<View> eventViews;
     @NonNull
     @VisibleForTesting
-    final List<EventTimeRange> eventTimeRanges;
+    final List<View> filteredEventViews;
+    @NonNull
+    @VisibleForTesting
+    final List<EventTimeRange> filteredEventTimeRanges;
     @NonNull
     @VisibleForTesting
     final List<DirectionalRect> eventRects;
@@ -76,6 +71,15 @@ public class DayView extends ViewGroup {
     @Nullable
     @VisibleForTesting
     EventColumnSpansHelper eventColumnSpansHelper;
+
+    private final int startHour;
+    private final int startMinute;
+    private final int endHour;
+    private final int endMinute;
+    private final int minuteCount;
+    private final int hourLabelsCount;
+    private final int hourDividersCount;
+    private final int halfHourDividersCount;
 
     @NonNull
     private final Paint hourDividerPaint;
@@ -108,27 +112,44 @@ public class DayView extends ViewGroup {
     DayView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr, boolean enableDrawing) {
         super(context, attrs, defStyleAttr);
 
-        hourDividerRects = new ArrayList<>(HOUR_DIVIDERS_COUNT);
-        for (int i = 0; i < HOUR_DIVIDERS_COUNT; i++) {
+        TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.DayView);
+
+        // The total number of usable minutes in this day
+        startHour = Math.max(array.getInt(R.styleable.DayView_startHour, MIN_START_HOUR), MIN_START_HOUR);
+        startMinute = startHour * MINUTES_PER_HOUR;
+        endHour = Math.min(array.getInt(R.styleable.DayView_endHour, MAX_END_HOUR), MAX_END_HOUR);
+        endMinute = endHour * MINUTES_PER_HOUR;
+        int hourCount = endHour - startHour;
+        minuteCount = hourCount * MINUTES_PER_HOUR;
+
+        // The hour labels and dividers count here is one more than the hours count so we can
+        // include the start of the midnight hour of the next day, setHourLabelViews() expects
+        // exactly this many labels
+        hourLabelsCount = hourCount + 1;
+        hourDividersCount = hourCount + 1;
+        halfHourDividersCount = hourCount;
+
+        hourDividerRects = new ArrayList<>(hourDividersCount);
+        for (int i = 0; i < hourDividersCount; i++) {
             hourDividerRects.add(new DirectionalRect());
         }
 
-        halfHourDividerRects = new ArrayList<>(HALF_HOUR_DIVIDERS_COUNT);
-        for (int i = 0; i < HALF_HOUR_DIVIDERS_COUNT; i++) {
+        halfHourDividerRects = new ArrayList<>(halfHourDividersCount);
+        for (int i = 0; i < halfHourDividersCount; i++) {
             halfHourDividerRects.add(new DirectionalRect());
         }
 
-        hourLabelRects = new ArrayList<>(HOUR_LABELS_COUNT);
-        for (int i = 0; i < HOUR_LABELS_COUNT; i++) {
+        hourLabelRects = new ArrayList<>(hourLabelsCount);
+        for (int i = 0; i < hourLabelsCount; i++) {
             hourLabelRects.add(new DirectionalRect());
         }
 
         hourLabelViews = new ArrayList<>();
         eventViews = new ArrayList<>();
-        eventTimeRanges = new ArrayList<>();
+        filteredEventViews = new ArrayList<>();
+        filteredEventTimeRanges = new ArrayList<>();
         eventRects = new ArrayList<>();
 
-        TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.DayView);
         dividerHeight = array.getDimensionPixelSize(R.styleable.DayView_dividerHeight, 0);
         usableHalfHourHeight =
                 dividerHeight + array.getDimensionPixelSize(R.styleable.DayView_halfHourHeight, 0);
@@ -151,7 +172,7 @@ public class DayView extends ViewGroup {
 
     /**
      * @param hourLabelViews the list of views to show as labels for each hour, this list must not
-     *                       be null and its length must be {@link #HOUR_LABELS_COUNT}
+     *                       be null and its length must be {@link #hourLabelsCount}
      */
     public void setHourLabelViews(@NonNull List<View> hourLabelViews) {
         for (View view : this.hourLabelViews) {
@@ -174,30 +195,31 @@ public class DayView extends ViewGroup {
      */
     public void setEventViews(@Nullable List<View> eventViews,
                               @Nullable List<EventTimeRange> eventTimeRanges) {
-        for (View view : this.eventViews) {
+        for (View view : this.filteredEventViews) {
             removeView(view);
         }
 
         this.eventViews.clear();
-        this.eventTimeRanges.clear();
+        this.filteredEventViews.clear();
+        this.filteredEventTimeRanges.clear();
         eventRects.clear();
         eventColumnSpansHelper = null;
 
-        if (eventViews != null) {
+        if (eventViews != null && eventTimeRanges != null) {
             this.eventViews.addAll(eventViews);
+            for (int i = 0; i < eventTimeRanges.size(); i++) {
+                EventTimeRange eventTimeRange = eventTimeRanges.get(i);
+                if (eventTimeRange.endMinute > startMinute && eventTimeRange.startMinute < endMinute) {
+                    this.filteredEventViews.add(this.eventViews.get(i));
+                    this.filteredEventTimeRanges.add(eventTimeRange);
+                }
+            }
         }
 
-        if (eventTimeRanges != null) {
-            this.eventTimeRanges.addAll(eventTimeRanges);
-        }
-
-        if (!this.eventViews.isEmpty() && !this.eventTimeRanges.isEmpty()) {
-            eventColumnSpansHelper = new EventColumnSpansHelper(this.eventTimeRanges);
-
-            for (int i = 0; i < this.eventViews.size(); i++) {
-                View view = this.eventViews.get(i);
+        if (!this.filteredEventViews.isEmpty() && !this.filteredEventTimeRanges.isEmpty()) {
+            eventColumnSpansHelper = new EventColumnSpansHelper(this.filteredEventTimeRanges);
+            for (View view : this.filteredEventViews) {
                 addView(view);
-
                 eventRects.add(new DirectionalRect());
             }
         }
@@ -217,6 +239,14 @@ public class DayView extends ViewGroup {
         return eventViews;
     }
 
+    public int getStartHour() {
+        return startHour;
+    }
+
+    public int getEndHour() {
+        return endHour;
+    }
+
     /**
      * Useful if this view is hosted in a scroll view, the y coordinate returned can be used to
      * scroll to the top of the given hour.
@@ -226,8 +256,8 @@ public class DayView extends ViewGroup {
      * @return the vertical offset of the top of the given hour in pixels
      */
     public int getHourTop(int hour) {
-        if (hour < 0 || hour >= HOUR_LABELS_COUNT) {
-            throw new IllegalStateException("Hour must be between 0 and " + HOUR_LABELS_COUNT);
+        if (hour < 0 || hour >= hourLabelsCount) {
+            throw new IllegalStateException("Hour must be between 0 and " + hourLabelsCount);
         }
 
         return hourDividerRects.get(hour).getBottom();
@@ -242,11 +272,11 @@ public class DayView extends ViewGroup {
      * @return the vertical offset of the bottom of the given hour in pixels
      */
     public int getHourBottom(int hour) {
-        if (hour < 0 || hour >= HOUR_LABELS_COUNT) {
-            throw new IllegalStateException("Hour must be between 0 and " + HOUR_LABELS_COUNT);
+        if (hour < 0 || hour >= hourLabelsCount) {
+            throw new IllegalStateException("Hour must be between 0 and " + hourLabelsCount);
         }
 
-        if (hour == HOUR_LABELS_COUNT - 1) {
+        if (hour == hourLabelsCount - 1) {
             return hourDividerRects.get(hour).getBottom();
         }
 
@@ -305,8 +335,8 @@ public class DayView extends ViewGroup {
             view.layout(rect.getLeft(), rect.getTop(), rect.getRight(), rect.getBottom());
         }
 
-        for (int i = 0; i < eventViews.size(); i++) {
-            View view = eventViews.get(i);
+        for (int i = 0; i < filteredEventViews.size(); i++) {
+            View view = filteredEventViews.get(i);
             DirectionalRect rect = eventRects.get(i);
             view.layout(rect.getLeft(), rect.getTop(), rect.getRight(), rect.getBottom());
         }
@@ -370,7 +400,7 @@ public class DayView extends ViewGroup {
 
         // Calculate the measured height
         int usableHeight = (hourDividerRects.size() + halfHourDividerRects.size() - 1) * usableHalfHourHeight;
-        minuteHeight = (float) usableHeight / MINUTE_COUNT;
+        minuteHeight = (float) usableHeight / minuteCount;
         firstDividerTop += getPaddingTop();
         int verticalPadding = firstDividerTop + lastDividerMarginBottom + getPaddingBottom() + dividerHeight;
         int measuredHeight = usableHeight + verticalPadding;
@@ -464,16 +494,21 @@ public class DayView extends ViewGroup {
                 ? (dividerEnd - dividerStart) / eventColumnSpansHelper.columnCount
                 : 0;
 
-        for (int i = 0; i < eventViews.size(); i++) {
-            EventTimeRange timeRange = eventTimeRanges.get(i);
+        for (int i = 0; i < filteredEventViews.size(); i++) {
+            EventTimeRange timeRange = filteredEventTimeRanges.get(i);
             EventColumnSpan columnSpan = eventColumnSpansHelper.columnSpans.get(i);
 
-            int duration = timeRange.endMinute - timeRange.startMinute;
+            int filteredStartMinute = Math.max(startMinute, timeRange.startMinute);
+            int duration = Math.min(endMinute, timeRange.endMinute) - filteredStartMinute;
+            if (duration < MIN_DURATION_MINUTES) {
+                duration = MIN_DURATION_MINUTES;
+                filteredStartMinute = endMinute - duration;
+            }
 
             int start = columnSpan.startColumn * eventColumnWidth + dividerStart + eventMargin;
             int end = start + (columnSpan.endColumn - columnSpan.startColumn) * eventColumnWidth - eventMargin * 2;
 
-            int topOffset = (int) (timeRange.startMinute * minuteHeight);
+            int topOffset = (int) ((filteredStartMinute - startMinute) * minuteHeight);
 
             int top = firstDividerTop + topOffset + dividerHeight + eventMargin;
             int bottom = top + (int) (duration * minuteHeight) - eventMargin * 2 - dividerHeight;
@@ -492,9 +527,9 @@ public class DayView extends ViewGroup {
     protected void validateChildViews() throws IllegalStateException {
         if (hourLabelViews.size() == 0) {
             throw new IllegalStateException("No hour label views, setHourLabelViews() must be called before this view is rendered");
-        } else if (hourLabelViews.size() != HOUR_LABELS_COUNT) {
-            throw new IllegalStateException("Inconsistent number of hour label views, there should be " + HOUR_LABELS_COUNT + " but " + hourLabelViews.size() + " were found");
-        } else if (eventViews.size() != eventTimeRanges.size()) {
+        } else if (hourLabelViews.size() != hourLabelsCount) {
+            throw new IllegalStateException("Inconsistent number of hour label views, there should be " + hourLabelsCount + " but " + hourLabelViews.size() + " were found");
+        } else if (filteredEventViews.size() != filteredEventTimeRanges.size()) {
             throw new IllegalStateException("Inconsistent number of event views or event time ranges, they should either be equal in length or both should be null");
         }
     }
@@ -531,8 +566,8 @@ public class DayView extends ViewGroup {
     }
 
     private void measureEvents() {
-        for (int i = 0; i < eventViews.size(); i++) {
-            measureExactly(eventViews.get(i), eventRects.get(i));
+        for (int i = 0; i < filteredEventViews.size(); i++) {
+            measureExactly(filteredEventViews.get(i), eventRects.get(i));
         }
     }
 
