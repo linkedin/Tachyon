@@ -3,6 +3,8 @@ Tachyon [![Build Status](https://travis-ci.com/linkedin/Tachyon.svg?branch=maste
 
 An Android library that provides a customizable calendar day view.
 
+[Click here for the iOS version.](https://github.com/linkedin/Tachyon-iOS)
+
 ![Alt text](screenshot.png "Tachyon Sample")
 
 Getting Started
