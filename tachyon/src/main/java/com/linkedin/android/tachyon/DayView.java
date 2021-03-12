@@ -499,10 +499,11 @@ public class DayView extends ViewGroup {
             EventColumnSpan columnSpan = eventColumnSpansHelper.columnSpans.get(i);
 
             int filteredStartMinute = Math.max(startMinute, timeRange.startMinute);
-            int duration = Math.min(endMinute, timeRange.endMinute) - filteredStartMinute;
+            int filteredEndMinute = Math.min(endMinute, timeRange.endMinute);
+            int duration = filteredEndMinute - filteredStartMinute;
             if (duration < MIN_DURATION_MINUTES) {
                 duration = MIN_DURATION_MINUTES;
-                filteredStartMinute = endMinute - duration;
+                filteredStartMinute = filteredEndMinute - duration;
             }
 
             int start = columnSpan.startColumn * eventColumnWidth + dividerStart + eventMargin;
