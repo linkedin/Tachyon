@@ -6,8 +6,8 @@
 <!-- for license information. -->
 <resources>
     <style name="Theme.TachyonSample" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="colorPrimary">@android:color/holo_blue_light</item>
+        <item name="colorPrimary">#0e76a8</item>
         <item name="colorPrimaryDark">@android:color/holo_blue_dark</item>
-        <item name="colorAccent">@android:color/holo_blue_light</item>
+        <item name="colorAccent">#0e76a8</item>
     </style>
 </resources>
