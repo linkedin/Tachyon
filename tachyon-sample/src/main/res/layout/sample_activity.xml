@@ -79,6 +79,8 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        android:scrollbars="vertical"
+        android:scrollbarAlwaysDrawVerticalTrack="true"
         tools:context=".SampleActivity">
 
         <com.linkedin.android.tachyon.DayView
@@ -86,6 +88,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="@dimen/large_padding"
+            android:scrollbars="vertical"
+            android:scrollbarAlwaysDrawVerticalTrack="true"
             app:dividerHeight="@dimen/divider_height"
             app:endHour="@integer/end_hour"
             app:eventMargin="@dimen/small_padding"
